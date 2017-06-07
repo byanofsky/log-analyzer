@@ -1,6 +1,30 @@
 import psycopg2
 
 
+def format_title(title, row_len, sep):
+    rem = row_len - len(title)  # How many spaces available?
+    left = (rem//2) * sep
+    right = (rem-len(left)) * sep
+    return '{}{}{}'.format(left, title, right)
+
+
+def format_table(data, title, col_sep=' | ', row_sep_tag='-'):
+    table = []
+    for r in data:
+        row = []
+        for c in r:
+            row.append(str(c))
+        table.append(col_sep.join(row))
+    # Find longest row
+    row_len = reduce((lambda x, y: max(x, len(y))), table, 0)
+    # Add row seperator
+    row_sep = '\n' + (row_sep_tag * (row_len)) + '\n'
+    # Prepend title
+    title = format_title(title, row_len, row_sep_tag)
+    f_table = row_sep.join(table)
+    return title + '\n\n' + f_table
+
+
 def db_op(sql=None):
     if not sql:
         print('No SQL query. Returning empty.')
@@ -24,20 +48,12 @@ def three_popular_articles():
     '''
     formatted = []
     data = db_op(sql)
-    longest_row = 0
-    for d in data:
-        row = '| {} | {} views |'.format(d[0], d[1])
-        formatted.append(row)
-        longest_row = max(len(row), longest_row)
-    title = 'Most Popular Articles'
-    formatted.insert(0, '-' * longest_row)
-    formatted.insert(0, '| ' + title + (' ' * (longest_row-len(title)-4)) + ' |')
-    formatted.insert(0, '-' * longest_row)
-    formatted.append('-' * longest_row)
-    return '\n'.join(formatted)
+    return data
 
 if __name__ == '__main__':
-    print(three_popular_articles())
+    data = three_popular_articles()
+    print('\n\n'+format_table(data, 'Popular Posts')+'\n\n')
+
 
 # # Get count of path visits for 200 status only
 # SELECT log.path, COUNT(log.id)

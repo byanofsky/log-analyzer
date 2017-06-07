@@ -8,6 +8,21 @@ def format_title(title, row_len, sep):
     return '{}{}{}'.format(left, title, right)
 
 
+def get_widest_cols(data):
+    # Get number of columns and rows
+    num_rows = len(data)
+    num_cols = len(data[0])
+    # Get largest row of each column and store in list
+    widest_cols = []
+    for col in range(num_cols):
+        widest = 0
+        for row in range(num_rows):
+            cell = str(data[row][col])
+            widest = max(len(cell), widest)
+        widest_cols.append(widest)
+    return widest_cols
+
+
 def format_table(data, title, col_sep=' | ', row_sep_tag='-'):
     table = []
     for r in data:
@@ -78,17 +93,20 @@ def error_report(min=0):
 
 
 if __name__ == '__main__':
-    pop_data = three_popular_articles()
-    print('\n\n'+format_table(pop_data, 'Popular Posts')+'\n\n')
+    # pop_data = three_popular_articles()
+    # print('\n\n'+format_table(pop_data, 'Popular Posts')+'\n\n')
+    #
+    # error_data = error_report()
+    # print('\n\n'+format_table(error_data, 'Complete Error Report')+'\n\n')
+    #
+    # error_data = error_report(0.01)
+    # print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
 
-    error_data = error_report()
-    print('\n\n'+format_table(error_data, 'Complete Error Report')+'\n\n')
-
-    error_data = error_report(0.01)
-    print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
-
-    author_data = popular_authors()
-    print('\n\n'+format_table(author_data, 'Popular Authors')+'\n\n')
+    # author_data = popular_authors()
+    # print('\n\n'+format_table(author_data, 'Popular Authors')+'\n\n')
+    print(get_widest_cols(three_popular_articles()))
+    print(get_widest_cols(error_report()))
+    print(get_widest_cols(popular_authors()))
 
 
 # # Get count of path visits for 200 status only

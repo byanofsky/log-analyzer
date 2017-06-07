@@ -25,7 +25,7 @@ def format_table(data, title, col_sep=' | ', row_sep_tag='-'):
     return title + '\n\n' + f_table
 
 
-def db_op(sql=None):
+def db_op(sql=None, data=None):
     if not sql:
         print('No SQL query. Returning empty.')
         return
@@ -33,10 +33,10 @@ def db_op(sql=None):
     conn = psycopg2.connect("dbname=news user=vagrant")
     with conn:
         with conn.cursor() as curs:
-            curs.execute(sql)
-            data = curs.fetchall()
+            curs.execute(sql, data)
+            output = curs.fetchall()
     conn.close()
-    return data
+    return output
 
 
 def three_popular_articles():
@@ -46,13 +46,33 @@ def three_popular_articles():
          ORDER BY visits DESC
          LIMIT 3;
     '''
-    formatted = []
     data = db_op(sql)
     return data
 
+
+def error_report(min=0):
+    sql = '''
+        SELECT day_visits_total.day AS day,
+               CAST(day_visits_errors.count AS real) / day_visits_total.count AS error_perc
+          FROM day_visits_total,
+               day_visits_errors
+         WHERE day_visits_total.day = day_visits_errors.day
+               AND CAST(day_visits_errors.count AS real) / day_visits_total.count > %s;
+    '''
+    data = (str(min),)
+    output = db_op(sql, data)
+    return output
+
+
 if __name__ == '__main__':
-    data = three_popular_articles()
-    print('\n\n'+format_table(data, 'Popular Posts')+'\n\n')
+    pop_data = three_popular_articles()
+    print('\n\n'+format_table(pop_data, 'Popular Posts')+'\n\n')
+
+    error_data = error_report()
+    print('\n\n'+format_table(error_data, 'Complete Error Report')+'\n\n')
+
+    error_data = error_report(0.01)
+    print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
 
 
 # # Get count of path visits for 200 status only

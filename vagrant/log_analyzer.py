@@ -50,6 +50,19 @@ def three_popular_articles():
     return data
 
 
+def popular_authors():
+    sql = '''
+        SELECT authors.name AS author_name,
+               SUM(article_visits.visits) AS visits
+          FROM authors, article_visits
+         WHERE authors.id = article_visits.author_id
+         GROUP BY authors.id
+         ORDER BY visits DESC;
+    '''
+    data = db_op(sql)
+    return data
+
+
 def error_report(min=0):
     sql = '''
         SELECT day_visits_total.day AS day,
@@ -73,6 +86,9 @@ if __name__ == '__main__':
 
     error_data = error_report(0.01)
     print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
+
+    author_data = popular_authors()
+    print('\n\n'+format_table(author_data, 'Popular Authors')+'\n\n')
 
 
 # # Get count of path visits for 200 status only

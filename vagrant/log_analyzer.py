@@ -1,4 +1,5 @@
 import psycopg2
+import datetime
 from table_maker import create_table
 
 
@@ -52,7 +53,7 @@ def get_popular_authors():
     return f_data
 
 
-def get_error_report(min=0):
+def get_error_data(min=0):
     sql = '''
         SELECT day_visits_total.day AS day,
                CAST(day_visits_errors.count AS real) / day_visits_total.count AS error_perc
@@ -66,18 +67,40 @@ def get_error_report(min=0):
     return output
 
 
+def format_error_data(error_data):
+    output = []
+    for r in error_data:
+        output_row = []
+        for c in r:
+            if type(c) is datetime.datetime:
+                output_cell = c.strftime('%B %d, %Y')
+            elif type(c) is float:
+                perc = c * 100
+                output_cell = '{:.2f}%'.format(perc)
+            else:
+                output_cell = c
+            output_row.append(output_cell)
+        output.append(output_row)
+    return output
+
+
 if __name__ == '__main__':
+    error_data = get_error_data()
+    formatted_error_data = format_error_data(error_data)
+    error_table = create_table(formatted_error_data, 'Error Report')
+    print(error_table)
+
     # pop_data = three_popular_articles()
     # print('\n\n'+format_table(pop_data, 'Popular Posts')+'\n\n')
     #
-    # error_data = error_report()
-    # print('\n\n'+format_table(error_data, 'Complete Error Report')+'\n\n')
-    #
-    # error_data = error_report(0.01)
-    # print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
+    # error_data = get_error_report()
+    # print('\n\n'+create_table(error_data, 'Complete Error Report')+'\n\n')
 
-    author_data = get_popular_authors()
-    print('\n\n'+create_table(author_data, 'Popular Authors')+'\n\n')
+    # error_data = get_error_report(0.01)
+    # print('\n\n'+create_table(error_data, 'Error Report > 1%')+'\n\n')
+
+    # author_data = get_popular_authors()
+    # print('\n\n'+create_table(author_data, 'Popular Authors')+'\n\n')
     # print(get_widest_cols(three_popular_articles()))
     # print(get_widest_cols(error_report()))
     # print(get_widest_cols(popular_authors()))

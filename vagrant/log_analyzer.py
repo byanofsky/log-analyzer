@@ -21,23 +21,32 @@ def db_op(sql=None, data=None):
 
 
 def init_db():
+    # Create view for count by day by status code
+    view_visits_by_status = '''
+        CREATE OR REPLACE VIEW visits_by_day_status AS
+            SELECT date_trunc('day', log.time) AS day,
+                   log.status,
+                   COUNT(log.id) as views
+             FROM log
+            GROUP BY day, status;
+    '''
+    db_op(view_visits_by_status)
     # Create view for count of total visits by day
     view_total_visits = '''
-        CREATE OR REPLACE VIEW day_visits_total AS
-             SELECT date_trunc('day', log.time) AS day,
-                    COUNT(log.id)
-               FROM log
+        CREATE OR REPLACE VIEW visits_by_day AS
+             SELECT day,
+                    SUM(views) as views
+               FROM visits_by_day_status
               GROUP BY day;
     '''
     db_op(view_total_visits)
     # Create view for count of errors by day
     view_error_visits = '''
-        CREATE OR REPLACE VIEW day_visits_errors AS
-             SELECT date_trunc('day', log.time) AS day,
-                    COUNT(log.id)
-               FROM log
-              WHERE log.status != '200 OK'
-              GROUP BY day;
+        CREATE OR REPLACE VIEW error_visits_by_day AS
+             SELECT day,
+                    views
+               FROM visits_by_day_status
+              WHERE status != '200 OK';
     '''
     db_op(view_error_visits)
     # Create view with visits by article id/name
@@ -53,17 +62,14 @@ def init_db():
                 ORDER BY visits DESC;
     '''
     db_op(view_articles_visits)
+    print('Database initialized')
 
 
 def get_three_popular_articles():
     sql = '''
-        SELECT articles.title,
-               count(log.id) as visits
-          FROM articles,
-               log
-         WHERE log.path = '/article/' || articles.slug
-         GROUP BY articles.title
-         ORDER BY visits DESC
+        SELECT title,
+               visits
+          FROM articles_visits
          LIMIT 3;
     '''
     data = db_op(sql)
@@ -72,14 +78,12 @@ def get_three_popular_articles():
 
 def get_popular_authors():
     sql = '''
-        SELECT authors.name,
-               count(log.id) as visits
-          FROM articles,
-               authors,
-               log
-         WHERE log.path = '/article/' || articles.slug
-               AND authors.id = articles.author
-         GROUP BY authors.name
+        SELECT articles_visits.title,
+               authors.name,
+               articles_visits.visits as visits
+          FROM articles_visits,
+               authors
+         WHERE authors.id = articles_visits.author_id
          ORDER BY visits DESC;
     '''
     data = db_op(sql)

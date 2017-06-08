@@ -38,19 +38,7 @@ def get_popular_authors():
          ORDER BY visits DESC;
     '''
     data = db_op(sql)
-    # Finess data
-    f_data = []
-    for r in range(len(data)):
-        row = data[r]
-        f_row = []
-        for c in range(len(row)):
-            if c == 1:
-                cell = '{} views'.format(row[c])
-            else:
-                cell = row[c]
-            f_row.append(cell)
-        f_data.append(f_row)
-    return f_data
+    return data
 
 
 def get_error_data(min=0):
@@ -87,28 +75,21 @@ def format_data(data):
 
 
 if __name__ == '__main__':
-    error_data = get_error_data()
-    formatted_error_data = format_data(error_data)
-    error_table = create_table(formatted_error_data, 'Error Report')
-    print(error_table)
-
     articles_data = get_three_popular_articles()
     formatted_articles_data = format_data(articles_data)
     popular_articles_table = create_table(formatted_articles_data,
                                           'Popular Articles')
-    print(popular_articles_table)
-    #
-    # error_data = get_error_report()
-    # print('\n\n'+create_table(error_data, 'Complete Error Report')+'\n\n')
+    # print(popular_articles_table)
 
-    # error_data = get_error_report(0.01)
-    # print('\n\n'+create_table(error_data, 'Error Report > 1%')+'\n\n')
+    author_data = get_popular_authors()
+    formatted_author_data = format_data(author_data)
+    authors_table = create_table(formatted_author_data, 'Popular Authors')
+    print(authors_table)
 
-    # author_data = get_popular_authors()
-    # print('\n\n'+create_table(author_data, 'Popular Authors')+'\n\n')
-    # print(get_widest_cols(three_popular_articles()))
-    # print(get_widest_cols(error_report()))
-    # print(get_widest_cols(popular_authors()))
+    error_data = get_error_data()
+    formatted_error_data = format_data(error_data)
+    error_table = create_table(formatted_error_data, 'Error Report')
+    # print(error_table)
 
 
 # # Get count of path visits for 200 status only

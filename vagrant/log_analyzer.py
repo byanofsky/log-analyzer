@@ -65,7 +65,7 @@ def init_db():
             SELECT articles.id,
                    articles.title,
                    articles.author AS author_id,
-                   count(log.id) AS views
+                   CAST(COUNT(log.id) AS bigint) AS views
               FROM articles, log
              WHERE log.path = '/article/' || articles.slug
              GROUP BY articles.id
@@ -75,7 +75,7 @@ def init_db():
     db_op('''
         CREATE OR REPLACE VIEW author_views AS
             SELECT authors.name,
-                   SUM(articles_views.views) AS views
+                   CAST(SUM(articles_views.views) AS bigint) AS views
               FROM articles_views,
                    authors
              WHERE authors.id = articles_views.author_id
@@ -137,6 +137,8 @@ def format_data(data):
 
 
 if __name__ == '__main__':
+    init_db()
+
     print('Retrieving popular articles...')
     articles_data = get_three_popular_articles()
     formatted_articles_data = format_data(articles_data)

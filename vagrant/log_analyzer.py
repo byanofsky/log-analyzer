@@ -21,47 +21,56 @@ def db_op(sql=None, data=None):
 
 
 def init_db():
-    # Create view for count by day by status code
-    view_visits_by_status = '''
-        CREATE OR REPLACE VIEW visits_by_day_status AS
+    # Create view for total requests per day per status code (200 or 404)
+    db_op('''
+        CREATE OR REPLACE VIEW req_by_day_status AS
             SELECT date_trunc('day', log.time) AS day,
                    log.status,
-                   COUNT(log.id) as views
-             FROM log
-            GROUP BY day, status;
-    '''
-    db_op(view_visits_by_status)
-    # Create view for count of total visits by day
-    view_total_visits = '''
-        CREATE OR REPLACE VIEW visits_by_day AS
-             SELECT day,
-                    SUM(views) as views
-               FROM visits_by_day_status
-              GROUP BY day;
-    '''
-    db_op(view_total_visits)
-    # Create view for count of errors by day
-    view_error_visits = '''
-        CREATE OR REPLACE VIEW error_visits_by_day AS
-             SELECT day,
-                    views
-               FROM visits_by_day_status
-              WHERE status != '200 OK';
-    '''
-    db_op(view_error_visits)
+                   CAST(COUNT(log.id) AS bigint) AS reqs
+              FROM log
+             GROUP BY day, status;
+    ''')
+    # Create view for total requests per day
+    db_op('''
+        CREATE OR REPLACE VIEW req_by_day AS
+            SELECT day,
+                   CAST(SUM(reqs) AS bigint) AS reqs
+              FROM req_by_day_status
+             GROUP BY day;
+    ''')
+    # Create view for errors (404) per day
+    db_op('''
+        CREATE OR REPLACE VIEW error_by_day AS
+            SELECT day,
+                   CAST(SUM(reqs) AS bigint) AS reqs
+              FROM req_by_day_status
+             WHERE status != '200 OK'
+             GROUP BY day;
+    ''')
+    # Create view for error percentage by day
+    db_op('''
+        CREATE OR REPLACE VIEW error_perc_by_day AS
+            SELECT total.day,
+                   SUM(error.reqs) AS errors,
+                   SUM(total.reqs) AS reqs,
+                   SUM(error.reqs) / SUM(total.reqs) AS error_perc
+            FROM req_by_day AS total,
+                 error_by_day AS error
+            WHERE total.day = error.day
+            GROUP BY total.day;
+    ''')
     # Create view with visits by article id/name
-    view_articles_visits = '''
+    db_op('''
         CREATE OR REPLACE VIEW articles_visits AS
             SELECT articles.id,
                    articles.title,
-                   articles.author as author_id,
-                   count(log.id) as visits
-                FROM articles, log
-                WHERE log.path = '/article/' || articles.slug
-                GROUP BY articles.id
-                ORDER BY visits DESC;
-    '''
-    db_op(view_articles_visits)
+                   articles.author AS author_id,
+                   count(log.id) AS visits
+              FROM articles, log
+             WHERE log.path = '/article/' || articles.slug
+             GROUP BY articles.id
+             ORDER BY visits DESC;
+    ''')
     print('Database initialized')
 
 
@@ -78,12 +87,12 @@ def get_three_popular_articles():
 
 def get_popular_authors():
     sql = '''
-        SELECT articles_visits.title,
-               authors.name,
-               articles_visits.visits as visits
+        SELECT authors.name,
+               SUM(articles_visits.visits) as visits
           FROM articles_visits,
                authors
          WHERE authors.id = articles_visits.author_id
+         GROUP BY authors.name
          ORDER BY visits DESC;
     '''
     data = db_op(sql)

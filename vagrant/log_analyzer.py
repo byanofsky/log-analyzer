@@ -12,11 +12,10 @@ def db_op(sql=None, data=None):
     with conn:
         with conn.cursor() as curs:
             curs.execute(sql, data)
-            try:
-                output = curs.fetchall()
-            except psycopg2.ProgrammingError as e:
-                print(e)
+            if curs.description == None:
                 output = None
+            else:
+                output = curs.fetchall()
     conn.close()
     return output
 
@@ -120,7 +119,7 @@ if __name__ == '__main__':
     authors_table = create_table(formatted_author_data, 'Popular Authors')
     print(authors_table)
 
-    error_data = get_error_data()
+    error_data = get_error_data(0.01)
     formatted_error_data = format_data(error_data)
-    error_table = create_table(formatted_error_data, 'Error Report')
+    error_table = create_table(formatted_error_data, 'Error Report > 1%')
     print(error_table)

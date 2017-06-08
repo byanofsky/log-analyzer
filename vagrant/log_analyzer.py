@@ -23,25 +23,28 @@ def get_widest_cols(data):
     return widest_cols
 
 
-def format_table(data, title, col_sep=' | ', row_sep_tag='-'):
+# Help from https://stackoverflow.com/a/9536084/4522767
+def create_table(data, title, col_sep=' | ', row_sep_tag='-'):
+    num_cols = len(data[0])
+    num_rows = len(data)
     col_sizes = get_widest_cols(data)
     table = []
-    for r in range(len(data)):
-        row = data[r]
-        t_row = []
-        for c in range(len(row)):
-            cell = data[r][c]
-            template = '{:' + str(col_sizes[c]) + '}'
-            t_row.append(template.format(str(cell)))
-        table.append(' {} '.format(col_sep.join(t_row)))
+    for r in range(num_rows):
+        d_row = data[r]
+        row = []
+        for c in range(num_cols):
+            d_col = d_row[c]
+            template = '{' + ':{}'.format(col_sizes[c]) + '}'
+            row.append(template.format(d_col))
+        table.append(' {} '.format(col_sep.join(row)))
     # Find row length
     row_len = len(table[0])
     # Add row seperator
-    row_sep = '\n {} \n'.format(row_sep_tag * (row_len))
+    row_sep = '\n{}\n'.format(row_sep_tag * (row_len))
     # Prepend title
     title = format_title(title, row_len, row_sep_tag)
-    f_table = row_sep.join(table)
-    return title + '\n\n' + f_table
+    table = row_sep.join(table)
+    return title + '\n\n' + table
 
 
 def db_op(sql=None, data=None):
@@ -119,7 +122,7 @@ if __name__ == '__main__':
     # print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
 
     author_data = popular_authors()
-    print('\n\n'+format_table(author_data, 'Popular Authors')+'\n\n')
+    print('\n\n'+create_table(author_data, 'Popular Authors')+'\n\n')
     # print(get_widest_cols(three_popular_articles()))
     # print(get_widest_cols(error_report()))
     # print(get_widest_cols(popular_authors()))

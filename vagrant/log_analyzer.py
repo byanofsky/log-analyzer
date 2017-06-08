@@ -61,15 +61,15 @@ def init_db():
     ''')
     # Create view with visits by article id/name
     db_op('''
-        CREATE OR REPLACE VIEW articles_visits AS
+        CREATE OR REPLACE VIEW articles_views AS
             SELECT articles.id,
                    articles.title,
                    articles.author AS author_id,
-                   count(log.id) AS visits
+                   count(log.id) AS views
               FROM articles, log
              WHERE log.path = '/article/' || articles.slug
              GROUP BY articles.id
-             ORDER BY visits DESC;
+             ORDER BY views DESC;
     ''')
     print('Database initialized')
 
@@ -77,8 +77,8 @@ def init_db():
 def get_three_popular_articles():
     sql = '''
         SELECT title,
-               visits
-          FROM articles_visits
+               views
+          FROM articles_views
          LIMIT 3;
     '''
     data = db_op(sql)

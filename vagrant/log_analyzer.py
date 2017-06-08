@@ -13,7 +13,7 @@ def db_op(sql=None, data=None):
     with conn:
         with conn.cursor() as curs:
             curs.execute(sql, data)
-            if curs.description == None:
+            if curs.description is None:
                 output = None
             else:
                 output = curs.fetchall()
@@ -128,7 +128,7 @@ def format_data(data):
             elif type(c) is decimal.Decimal:
                 perc = c * 100
                 output_cell = '{:.2f}%'.format(perc)
-            elif type(c) is long:
+            elif type(c) is int:
                 output_cell = '{} views'.format(c)
             else:
                 output_cell = c

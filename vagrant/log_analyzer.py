@@ -61,7 +61,7 @@ def db_op(sql=None, data=None):
     return output
 
 
-def three_popular_articles():
+def get_three_popular_articles():
     sql = '''
         SELECT title, visits
           FROM article_visits
@@ -72,7 +72,7 @@ def three_popular_articles():
     return data
 
 
-def popular_authors():
+def get_popular_authors():
     sql = '''
         SELECT authors.name AS author_name,
                SUM(article_visits.visits) AS visits
@@ -97,7 +97,7 @@ def popular_authors():
     return f_data
 
 
-def error_report(min=0):
+def get_error_report(min=0):
     sql = '''
         SELECT day_visits_total.day AS day,
                CAST(day_visits_errors.count AS real) / day_visits_total.count AS error_perc
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     # error_data = error_report(0.01)
     # print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
 
-    author_data = popular_authors()
+    author_data = get_popular_authors()
     print('\n\n'+create_table(author_data, 'Popular Authors')+'\n\n')
     # print(get_widest_cols(three_popular_articles()))
     # print(get_widest_cols(error_report()))

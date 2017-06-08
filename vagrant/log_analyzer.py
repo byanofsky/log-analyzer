@@ -1,5 +1,6 @@
 import psycopg2
 import datetime
+import decimal
 from table_maker import create_table
 
 
@@ -124,7 +125,7 @@ def format_data(data):
         for c in r:
             if type(c) is datetime.datetime:
                 output_cell = c.strftime('%B %d, %Y')
-            elif type(c) is float:
+            elif type(c) is decimal.Decimal:
                 perc = c * 100
                 output_cell = '{:.2f}%'.format(perc)
             elif type(c) is long:

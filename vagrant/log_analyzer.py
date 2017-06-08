@@ -71,6 +71,17 @@ def init_db():
              GROUP BY articles.id
              ORDER BY views DESC;
     ''')
+    # Create view with list of authors by views
+    db_op('''
+        CREATE OR REPLACE VIEW author_views AS
+            SELECT authors.name,
+                   SUM(articles_views.views) AS views
+              FROM articles_views,
+                   authors
+             WHERE authors.id = articles_views.author_id
+             GROUP BY authors.id
+             ORDER BY views DESC;
+    ''')
     print('Database initialized')
 
 
@@ -87,13 +98,8 @@ def get_three_popular_articles():
 
 def get_popular_authors():
     sql = '''
-        SELECT authors.name,
-               SUM(articles_visits.visits) as visits
-          FROM articles_visits,
-               authors
-         WHERE authors.id = articles_visits.author_id
-         GROUP BY authors.name
-         ORDER BY visits DESC;
+        SELECT *
+          FROM author_views;
     '''
     data = db_op(sql)
     return data

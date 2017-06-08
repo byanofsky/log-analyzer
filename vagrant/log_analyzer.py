@@ -107,12 +107,10 @@ def get_popular_authors():
 
 def get_error_data(min=0):
     sql = '''
-        SELECT day_visits_total.day AS day,
-               CAST(day_visits_errors.count AS real) / day_visits_total.count AS error_perc
-          FROM day_visits_total,
-               day_visits_errors
-         WHERE day_visits_total.day = day_visits_errors.day
-               AND CAST(day_visits_errors.count AS real) / day_visits_total.count > %s;
+        SELECT day,
+               error_perc
+          FROM error_perc_by_day
+         WHERE error_perc > %s;
     '''
     data = (str(min),)
     output = db_op(sql, data)
@@ -139,17 +137,20 @@ def format_data(data):
 
 
 if __name__ == '__main__':
+    print('Retrieving popular articles...')
     articles_data = get_three_popular_articles()
     formatted_articles_data = format_data(articles_data)
     popular_articles_table = create_table(formatted_articles_data,
                                           'Popular Articles')
     print(popular_articles_table)
 
+    print('Retreiving popular authors...')
     author_data = get_popular_authors()
     formatted_author_data = format_data(author_data)
     authors_table = create_table(formatted_author_data, 'Popular Authors')
     print(authors_table)
 
+    print('Days with more than 1% errors...')
     error_data = get_error_data(0.01)
     formatted_error_data = format_data(error_data)
     error_table = create_table(formatted_error_data, 'Error Report > 1%')

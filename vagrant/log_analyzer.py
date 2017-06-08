@@ -67,9 +67,9 @@ def get_error_data(min=0):
     return output
 
 
-def format_error_data(error_data):
+def format_data(data):
     output = []
-    for r in error_data:
+    for r in data:
         output_row = []
         for c in r:
             if type(c) is datetime.datetime:
@@ -77,6 +77,8 @@ def format_error_data(error_data):
             elif type(c) is float:
                 perc = c * 100
                 output_cell = '{:.2f}%'.format(perc)
+            elif type(c) is long:
+                output_cell = '{} views'.format(c)
             else:
                 output_cell = c
             output_row.append(output_cell)
@@ -86,12 +88,15 @@ def format_error_data(error_data):
 
 if __name__ == '__main__':
     error_data = get_error_data()
-    formatted_error_data = format_error_data(error_data)
+    formatted_error_data = format_data(error_data)
     error_table = create_table(formatted_error_data, 'Error Report')
     print(error_table)
 
-    # pop_data = three_popular_articles()
-    # print('\n\n'+format_table(pop_data, 'Popular Posts')+'\n\n')
+    articles_data = get_three_popular_articles()
+    formatted_articles_data = format_data(articles_data)
+    popular_articles_table = create_table(formatted_articles_data,
+                                          'Popular Articles')
+    print(popular_articles_table)
     #
     # error_data = get_error_report()
     # print('\n\n'+create_table(error_data, 'Complete Error Report')+'\n\n')

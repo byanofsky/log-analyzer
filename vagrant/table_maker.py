@@ -21,7 +21,7 @@ def get_widest_cols(data):
 
 
 # Help from https://stackoverflow.com/a/9536084/4522767
-def create_table(data, title, col_sep=' | ', row_sep_tag='-'):
+def create_table(data, title, col_sep=' | ', row_sep_tag='-', out_pad=2):
     # Get data measurements
     num_cols = len(data[0])
     num_rows = len(data)
@@ -51,4 +51,6 @@ def create_table(data, title, col_sep=' | ', row_sep_tag='-'):
     # Prepend title to top of table
     title = format_title(title, table_width, row_sep_tag)
     table = '{}\n\n{}'.format(title, table)
+    # Add padding above and below table
+    table = '{1}{0}{1}'.format(table, '\n'*out_pad)
     return table

@@ -25,26 +25,36 @@ def get_widest_cols(data):
 
 # Help from https://stackoverflow.com/a/9536084/4522767
 def create_table(data, title, col_sep=' | ', row_sep_tag='-'):
+    # Get data measurements
     num_cols = len(data[0])
     num_rows = len(data)
-    col_sizes = get_widest_cols(data)
+    # Get the widest cell in each column
+    col_widths = get_widest_cols(data)
+    # Create table to fill with data
     table = []
+    # Fill table with data
     for r in range(num_rows):
-        d_row = data[r]
+        data_row = data[r]
         row = []
         for c in range(num_cols):
-            d_col = d_row[c]
-            template = '{' + ':{}'.format(col_sizes[c]) + '}'
-            row.append(template.format(d_col))
+            data_cell = data_row[c]
+            # Create a template for this cell and use col width so all cells
+            # in columns have same width
+            template = '{{:{}}}'.format(col_widths[c])
+            # Append cell to row
+            row.append(template.format(data_cell))
+        # Append row to table, adding space before and after row and
+        # using column seperator between cells
         table.append(' {} '.format(col_sep.join(row)))
-    # Find row length
-    row_len = len(table[0])
-    # Add row seperator
-    row_sep = '\n{}\n'.format(row_sep_tag * (row_len))
-    # Prepend title
-    title = format_title(title, row_len, row_sep_tag)
+    # Get width of table
+    table_width = len(table[0])
+    # Add row seperators
+    row_sep = '\n{}\n'.format(row_sep_tag * (table_width))
     table = row_sep.join(table)
-    return title + '\n\n' + table
+    # Prepend title to top of table
+    title = format_title(title, table_width, row_sep_tag)
+    table = '{}\n\n{}'.format(title, table)
+    return table
 
 
 def db_op(sql=None, data=None):

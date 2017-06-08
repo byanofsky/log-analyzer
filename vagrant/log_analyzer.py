@@ -23,7 +23,7 @@ def db_op(sql=None, data=None):
 
 def init_db():
     view_total_visits = '''
-        CREATE VIEW day_visits_total AS
+        CREATE OR REPLACE VIEW day_visits_total AS
              SELECT date_trunc('day', log.time) AS day,
                     COUNT(log.id)
                FROM log
@@ -32,7 +32,7 @@ def init_db():
     db_op(view_total_visits)
 
     view_error_visits = '''
-        CREATE VIEW day_visits_errors AS
+        CREATE OR REPLACE VIEW day_visits_errors AS
              SELECT date_trunc('day', log.time) AS day,
                     COUNT(log.id)
                FROM log
@@ -40,6 +40,8 @@ def init_db():
               GROUP BY day;
     '''
     db_op(view_error_visits)
+
+
 
 
 def get_three_popular_articles():

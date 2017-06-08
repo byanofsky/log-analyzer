@@ -24,16 +24,20 @@ def get_widest_cols(data):
 
 
 def format_table(data, title, col_sep=' | ', row_sep_tag='-'):
+    col_sizes = get_widest_cols(data)
     table = []
-    for r in data:
-        row = []
-        for c in r:
-            row.append(str(c))
-        table.append(col_sep.join(row))
-    # Find longest row
-    row_len = reduce((lambda x, y: max(x, len(y))), table, 0)
+    for r in range(len(data)):
+        row = data[r]
+        t_row = []
+        for c in range(len(row)):
+            cell = data[r][c]
+            template = '{:' + str(col_sizes[c]) + '}'
+            t_row.append(template.format(str(cell)))
+        table.append(' {} '.format(col_sep.join(t_row)))
+    # Find row length
+    row_len = len(table[0])
     # Add row seperator
-    row_sep = '\n' + (row_sep_tag * (row_len)) + '\n'
+    row_sep = '\n {} \n'.format(row_sep_tag * (row_len))
     # Prepend title
     title = format_title(title, row_len, row_sep_tag)
     f_table = row_sep.join(table)
@@ -75,7 +79,19 @@ def popular_authors():
          ORDER BY visits DESC;
     '''
     data = db_op(sql)
-    return data
+    # Finess data
+    f_data = []
+    for r in range(len(data)):
+        row = data[r]
+        f_row = []
+        for c in range(len(row)):
+            if c == 1:
+                cell = '{} views'.format(row[c])
+            else:
+                cell = row[c]
+            f_row.append(cell)
+        f_data.append(f_row)
+    return f_data
 
 
 def error_report(min=0):
@@ -102,11 +118,11 @@ if __name__ == '__main__':
     # error_data = error_report(0.01)
     # print('\n\n'+format_table(error_data, 'Error Report > 1%')+'\n\n')
 
-    # author_data = popular_authors()
-    # print('\n\n'+format_table(author_data, 'Popular Authors')+'\n\n')
-    print(get_widest_cols(three_popular_articles()))
-    print(get_widest_cols(error_report()))
-    print(get_widest_cols(popular_authors()))
+    author_data = popular_authors()
+    print('\n\n'+format_table(author_data, 'Popular Authors')+'\n\n')
+    # print(get_widest_cols(three_popular_articles()))
+    # print(get_widest_cols(error_report()))
+    # print(get_widest_cols(popular_authors()))
 
 
 # # Get count of path visits for 200 status only

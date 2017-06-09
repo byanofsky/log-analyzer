@@ -1,0 +1,35 @@
+Database initialized
+Retrieving popular articles...
+
+
+----------------Popular Articles-----------------
+
+ Candidate is jerk, alleges rival | 338647 views 
+-------------------------------------------------
+ Bears love berries, alleges bear | 253801 views 
+-------------------------------------------------
+ Bad things gone, say good people | 170098 views 
+
+
+Retreiving popular authors...
+
+
+------------Popular Authors------------
+
+ Ursula La Multa        | 507594 views 
+---------------------------------------
+ Rudolf von Treppenwitz | 423457 views 
+---------------------------------------
+ Anonymous Contributor  | 170098 views 
+---------------------------------------
+ Markoff Chaney         | 84557 views  
+
+
+Days with more than 1% errors...
+
+
+---Error Report > 1%---
+
+ July 17, 2016 | 2.26% 
+
+

@@ -34,9 +34,13 @@ $ cd /vagrant
 ```
 4. Load data into the `news` database. A test log is included:
 ```
-psql -d news -f newsdata.sql
+$ psql -d news -f newsdata.sql
 ```
-5. Run the analyzer:
+5. Create database views:
+```
+$ python3 create_db_views.py
+```
+6. Run the analyzer:
 ```
 $ python3 log_analyzer.py
 ```

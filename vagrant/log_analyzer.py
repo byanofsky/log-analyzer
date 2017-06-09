@@ -140,8 +140,6 @@ def format_data(data):
 
 
 if __name__ == '__main__':
-    init_db()
-
     print('Retrieving popular articles...')
     articles_data = get_three_popular_articles()
     formatted_articles_data = format_data(articles_data)

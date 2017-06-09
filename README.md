@@ -56,6 +56,23 @@ If all works, you should get 3 tables like this:
  Bad things gone, say good people | 170098 views
 ```
 
+## Design
+
+Data is retrieved from the database using 3 functions:
+```
+# Returns 3 most popular articles
+get_three_popular_articles()
+
+# Returns a list of all authors, in order of popularity (number of views)
+get_popular_authors()
+
+# Returns the percentage of errors (404 errors / total request) grouped by day
+# min is the minimum error percentage to filter
+get_error_data(min=0)
+```
+
+There is also a helper module called `table_maker` to handle formatting the data
+
 ## Built With
 
 * [psycopg](http://initd.org/psycopg/)
